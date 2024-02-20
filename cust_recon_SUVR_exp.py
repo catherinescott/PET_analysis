@@ -29,7 +29,8 @@ rois = ['frontal',
         'composite']
 
 
-root_folder = '/Users/catherinescott/Documents/SUVR_spreadsheets/cust_recon_experiments'
+root_folder = '/Users/catherinescott/Documents/python_IO_files/PET_analysis/cust_recon_experiments/'
+
 itr_options = ['4','8','12','16','20']
 filt_options = ['2p0','0p0']
 psf_options = ['on','']
@@ -98,12 +99,14 @@ for recon in range(1,len(all_recons)):
             #print(files_to_amal)
             DF = pd.concat((pd.read_csv(f) for f in files_to_amal), ignore_index=True)
             
-            out_dir = root_folder+'/'+corr
-            
-            if not os.path.isdir(out_dir):
-                os.makedirs(out_dir)
-            
-            DF.to_csv(out_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itr'+itr+'-'+corr+'.csv')
+            out_fig_dir = root_folder+'/figures/'+corr
+            out_csv_dir = root_folder+'/csv/'+corr
+            if not os.path.isdir(out_fig_dir):
+                os.makedirs(out_fig_dir)
+            if not os.path.isdir(out_csv_dir):
+                os.makedirs(out_csv_dir)
+                
+            DF.to_csv(out_csv_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itr'+itr+'-'+corr+'.csv')
             DF.insert(1,"Iterations",[int(itr)]*len(DF.index), True)
             DF.drop(['session','exclude'], axis=1, inplace=True)
             
@@ -112,7 +115,7 @@ for recon in range(1,len(all_recons)):
             else:
                 DF_all_itr= pd.concat([DF_all_itr,DF])
                 #pd.DataFrame().append([DF_all_itr,DF])
-        DF_all_itr.to_csv(out_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'.csv')
+        DF_all_itr.to_csv(out_csv_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'.csv')
         subjs = DF_all_itr['subject'].unique()
         
         for subj in subjs:
@@ -128,7 +131,7 @@ for recon in range(1,len(all_recons)):
         #plt.xticks(fontsize=6)
         #plt.yticks(fontsize=6)       
         fig.tight_layout() 
-        plt.savefig(out_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'.pdf') 
+        plt.savefig(out_fig_dir+'/SUVR_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'.pdf') 
         plt.show()
                    
                     
