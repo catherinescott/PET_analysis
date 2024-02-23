@@ -13,6 +13,7 @@ import pandas as pd
 from glob import glob
 import os
 import matplotlib.pyplot as plt
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 rois = ['frontal',
         'parietal',
@@ -128,6 +129,9 @@ for recon in range(1,len(all_recons)):
                 axs[iter_roi].set_title(rois[iter_roi], fontsize=8)
                 axs[iter_roi].tick_params(axis='both', which='major', labelsize=6)
                 axs[iter_roi].tick_params(axis='both', which='minor', labelsize=6)
+                axs[iter_roi].xaxis.set_minor_locator(MultipleLocator(2))
+                axs[iter_roi].grid(which='major', linestyle='-')
+                axs[iter_roi].grid(which='minor', linestyle='--')
         #plt.xticks(fontsize=6)
         #plt.yticks(fontsize=6)       
         fig.tight_layout() 
