@@ -175,7 +175,7 @@ for recon in range(1,len(all_recons)):
                 plot_arr = DF_subj.iloc[:,[2,iter_roi+3]].values
                 axs[iter_roi].plot(plot_arr[:,0],plot_arr[:,1], linewidth=1.0)
                 axs[iter_roi].set_xlabel('Iterations', fontsize=6)
-                axs[iter_roi].set_ylabel('Activity concentration', fontsize=6)
+                axs[iter_roi].set_ylabel('Activity conc', fontsize=6)
                 axs[iter_roi].set_title(label_names[iter_roi], fontsize=8)
                 axs[iter_roi].tick_params(axis='both', which='major', labelsize=6)
                 axs[iter_roi].tick_params(axis='both', which='minor', labelsize=6)
@@ -185,12 +185,53 @@ for recon in range(1,len(all_recons)):
         #plt.xticks(fontsize=6)
         #plt.yticks(fontsize=6)       
         fig.tight_layout() 
-        plt.savefig(corrpath_fig+'/actconc_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'.pdf') 
+        plt.savefig(corrpath_fig+'/actconc_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'_abs.pdf') 
         plt.show()
         
+        #define image
+        fig, axs = plt.subplots(3, 5)
+        fig.suptitle('filter: '+str(smoothing)+' , time: '+str(t0s)+'-'+str(t1s)+' , correction: '+corr, fontsize=8)
+        axs = axs.flatten()
         
-        
-        
+        #added percent recovery relative to last iteration (assuming full recovery at last iteration)
+        for subj in subjs:
+            DF_subj=DF_all_itr.loc[DF_all_itr['Subject'] == subj]
+            #print('subject: '+subj)
+            for iter_roi in range(len(label_names)):
+                #print('region: '+label_names[iter_roi])
+                plot_arr = DF_subj.iloc[:,[2,iter_roi+3]].values
+                pct_recovery = (100*(plot_arr[:,1]/(plot_arr[len(plot_arr)-1,1])))
+                axs[iter_roi].plot(plot_arr[:,0],pct_recovery, linewidth=1.0)
+                axs[iter_roi].set_xlabel('Iterations', fontsize=6)
+                axs[iter_roi].set_ylabel('% recovery', fontsize=6)
+                axs[iter_roi].set_title(label_names[iter_roi], fontsize=8)
+                axs[iter_roi].tick_params(axis='both', which='major', labelsize=6)
+                axs[iter_roi].tick_params(axis='both', which='minor', labelsize=6)
+                axs[iter_roi].xaxis.set_minor_locator(MultipleLocator(2))
+                axs[iter_roi].grid(which='major', linestyle='-')
+                axs[iter_roi].grid(which='minor', linestyle='--')
+                if corr=='no_corr':
+                    convergence_criteria = 95.
+                    if max(plot_arr[:,1])== (plot_arr[len(plot_arr)-1,1]):
+                        # first element just greater than 98
+                        res = next(x for x, val in enumerate(pct_recovery)
+                                      if val > convergence_criteria)
+     
+                        # printing result
+                        print ('Subject: '+subj+', Region: '+label_names[iter_roi]+', Iteration (> '+str(convergence_criteria)+'%): '+ str(plot_arr[res,0]))
+                    else:
+                        # first element just greater than 0.6 
+                        res = next(x for x, val in enumerate(pct_recovery)
+                                      if val < 100+(100-convergence_criteria))
+     
+                        # printing result
+                        print ('Subject: '+subj+', Region: '+label_names[iter_roi]+', Iteration (< '+str(100+(100-convergence_criteria))+'%): '+ str(plot_arr[res,0]))  
+                        
+        #plt.xticks(fontsize=6)
+        #plt.yticks(fontsize=6)       
+        fig.tight_layout() 
+        plt.savefig(corrpath_fig+'/actconc_'+frame+'-f'+smoothing+'mm-itrALL-'+corr+'_percent.pdf') 
+        plt.show()        
         
         
         
